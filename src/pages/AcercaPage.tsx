@@ -4,8 +4,8 @@ export default function AcercaPage() {
       <p className="section-label">SOBRE EL PROYECTO</p>
       <h1 className="h2 fw-bold">Acerca del sistema</h1>
       <p className="lead text-secondary mt-3">
-        Aplicación educativa para aprender a conectar un frontend React con una
-        API REST.
+        Aplicación para aprender a conectar un frontend React con una API REST
+        (con Spring y Java).
       </p>
       <div className="card panel-card mt-4">
         <div className="card-body p-4">

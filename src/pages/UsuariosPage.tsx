@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ConfirmarEliminacion from "../components/ConfirmarEliminacion";
 import UsuarioFormulario from "../components/UsuarioFormulario";
 import UsuarioTabla from "../components/UsuarioTabla";
 import { usuarioService } from "../services/usuarioService";
@@ -9,46 +10,39 @@ export default function UsuariosPage() {
   const [busqueda, setBusqueda] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("todos");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState("");
+  const [usuarioAEliminar, setUsuarioAEliminar] = useState<Usuario | null>(
+    null,
+  );
 
-  async function cargarUsuarios() {
-    try {
-      setError("");
-      const datos = await usuarioService.obtenerTodos();
-      setUsuarios(datos);
-    } catch {
-      setError("No se pudieron cargar los usuarios.");
-    } finally {
-      setCargando(false);
-    }
+  function cargarUsuarios() {
+    const datos = usuarioService.obtenerTodos();
+    setUsuarios(datos);
   }
 
   useEffect(() => {
-    void cargarUsuarios();
+    cargarUsuarios();
   }, []);
 
-  async function guardarUsuario(nuevo: NuevoUsuario) {
-    try {
-      setError("");
-      await usuarioService.crear(nuevo);
-      await cargarUsuarios();
-      setMostrarFormulario(false);
-    } catch {
-      setError("No se pudo guardar el usuario.");
-      throw new Error("No se pudo guardar el usuario.");
+  function guardarUsuario(nuevo: NuevoUsuario) {
+    usuarioService.crear(nuevo);
+    cargarUsuarios();
+    setMostrarFormulario(false);
+  }
+
+  function solicitarEliminacion(id: number) {
+    const usuario = usuarios.find((u) => u.id === id);
+
+    if (usuario) {
+      setUsuarioAEliminar(usuario);
     }
   }
 
-  async function eliminarUsuario(id: number) {
-    if (!window.confirm("¿Deseas eliminar este usuario?")) return;
-    try {
-      setError("");
-      await usuarioService.eliminar(id);
-      await cargarUsuarios();
-    } catch {
-      setError("No se pudo eliminar el usuario.");
-    }
+  function confirmarEliminacion() {
+    if (!usuarioAEliminar) return;
+
+    usuarioService.eliminar(usuarioAEliminar.id);
+    cargarUsuarios();
+    setUsuarioAEliminar(null);
   }
 
   const filtrados = usuarios.filter((usuario) => {
@@ -95,11 +89,6 @@ export default function UsuariosPage() {
           </div>
         </div>
       </div>
-      {error && (
-        <div role="alert" className="alert alert-danger">
-          {error}
-        </div>
-      )}
       {mostrarFormulario && (
         <section className="card panel-card mb-4">
           <div className="card-body p-4">
@@ -145,22 +134,24 @@ export default function UsuariosPage() {
               </select>
             </div>
           </div>
-          {cargando ? (
-            <p role="status">Cargando usuarios...</p>
-          ) : (
-            <UsuarioTabla
-              usuarios={filtrados}
-              onEliminar={(id) => {
-                void eliminarUsuario(id);
-              }}
-            />
-          )}
+
+          <UsuarioTabla
+            usuarios={filtrados}
+            onEliminar={solicitarEliminacion}
+          />
         </div>
       </section>
       <p className="small text-secondary mt-3 mb-0">
-        Modo actual: almacenamiento local del navegador. No requiere iniciar
-        Spring Boot.
+        <b>IMPORTANTE:</b> El modo actual usa almacenamiento local del
+        navegador. No requiere iniciar Spring Boot y una base de datos.
       </p>
+      {usuarioAEliminar && (
+        <ConfirmarEliminacion
+          nombreUsuario={`${usuarioAEliminar.nombre} ${usuarioAEliminar.apellido}`}
+          onConfirmar={confirmarEliminacion}
+          onCancelar={() => setUsuarioAEliminar(null)}
+        />
+      )}
     </div>
   );
 }
