@@ -1,0 +1,73 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap");
+:root {
+  font-family: "DM Sans", system-ui, sans-serif;
+  color: #172c40;
+  background: #f6f8fb;
+}
+body {
+  margin: 0;
+  background: #f6f8fb;
+}
+.navbar-custom {
+  background: #0c3454;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+.navbar-custom .nav-link {
+  color: #d3e0ed;
+  border-radius: 0.5rem;
+}
+.navbar-custom .nav-link.active,
+.navbar-custom .nav-link:hover {
+  color: #fff;
+  background: #ffffff18;
+}
+.hero {
+  background: linear-gradient(125deg, #0b395d, #12638a);
+  color: white;
+}
+.eyebrow {
+  display: inline-block;
+  letter-spacing: 0.13em;
+  font-weight: 700;
+  font-size: 0.74rem;
+  color: #acdfff;
+}
+.section-label {
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #2478a8;
+}
+.feature-card,
+.panel-card,
+.stat-card {
+  border: 1px solid #e5edf2;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 5px 22px #152c4208;
+}
+.feature-icon {
+  width: 44px;
+  height: 44px;
+  background: #e5f3fa;
+  border-radius: 0.75rem;
+  display: grid;
+  place-items: center;
+  color: #12638a;
+  font-weight: 800;
+}
+.stat-number {
+  font-weight: 800;
+  font-size: 2rem;
+  color: #113f60;
+}
+.btn-primary {
+  --bs-btn-bg: #12638a;
+  --bs-btn-border-color: #12638a;
+  --bs-btn-hover-bg: #0c4b6a;
+  --bs-btn-hover-border-color: #0c4b6a;
+}
+.table > :not(caption) > * > * {
+  padding: 0.9rem 0.75rem;
+}
