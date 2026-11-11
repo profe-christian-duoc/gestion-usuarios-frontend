@@ -1,5 +1,6 @@
 import { usuariosIniciales } from "../data/usuariosIniciales";
 import type { NuevoUsuario, Usuario } from "../types/Usuario";
+import { api } from "../api/axiosConfig";
 
 const CLAVE_STORAGE = "gestion-usuarios";
 
@@ -28,19 +29,13 @@ function leerUsuarios(): Usuario[] {
 
 // Servicio de usuarios
 export const usuarioService = {
-  obtenerTodos(): Usuario[] {
-    return leerUsuarios();
+  async obtenerTodos(): Promise<Usuario[]> {
+    const respuesta = await api.get<Usuario[]>("/usuarios");
+    return respuesta.data;
   },
 
-  crear(datos: NuevoUsuario): void {
-    const usuarios = leerUsuarios();
-
-    const nuevo: Usuario = {
-      ...datos,
-      id: Math.max(0, ...usuarios.map((u) => u.id)) + 1,
-    };
-
-    guardarUsuarios([...usuarios, nuevo]);
+  async crear(datos: NuevoUsuario): Promise<void> {
+    await api.post("/usuarios", datos);
   },
 
   eliminar(id: number): void {

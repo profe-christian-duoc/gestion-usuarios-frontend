@@ -7,6 +7,7 @@ import type { NuevoUsuario, Usuario } from "../types/Usuario";
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [cargando, setCargando] = useState(true);
   const [busqueda, setBusqueda] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("todos");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -14,18 +15,28 @@ export default function UsuariosPage() {
     null,
   );
 
-  function cargarUsuarios() {
-    const datos = usuarioService.obtenerTodos();
-    setUsuarios(datos);
+  async function cargarUsuarios() {
+    setCargando(true);
+
+    try {
+      const datos = await usuarioService.obtenerTodos();
+      //Solo para simular la espera
+      //await new Promise((resolve) => setTimeout(resolve, 3000));
+      setUsuarios(datos);
+    } catch (error) {
+      console.error("Error al cargar usuarios:", error);
+    } finally {
+      setCargando(false);
+    }
   }
 
   useEffect(() => {
     cargarUsuarios();
   }, []);
 
-  function guardarUsuario(nuevo: NuevoUsuario) {
-    usuarioService.crear(nuevo);
-    cargarUsuarios();
+  async function guardarUsuario(nuevo: NuevoUsuario) {
+    await usuarioService.crear(nuevo);
+    await cargarUsuarios();
     setMostrarFormulario(false);
   }
 
@@ -34,6 +45,8 @@ export default function UsuariosPage() {
 
     if (usuario) {
       setUsuarioAEliminar(usuario);
+    } else {
+      console.log("no se pudo eliminar");
     }
   }
 
@@ -135,10 +148,21 @@ export default function UsuariosPage() {
             </div>
           </div>
 
-          <UsuarioTabla
-            usuarios={filtrados}
-            onEliminar={solicitarEliminacion}
-          />
+          {cargando ? (
+            <div
+              className="d-flex justify-content-center align-items-center gap-3 py-4"
+              role="status"
+            >
+              <div className="spinner-border text-primary" aria-hidden="true" />
+
+              <span>Cargando usuarios...</span>
+            </div>
+          ) : (
+            <UsuarioTabla
+              usuarios={filtrados}
+              onEliminar={solicitarEliminacion}
+            />
+          )}
         </div>
       </section>
       <p className="small text-secondary mt-3 mb-0">

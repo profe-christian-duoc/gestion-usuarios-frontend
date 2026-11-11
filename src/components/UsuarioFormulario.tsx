@@ -2,7 +2,7 @@ import { useState, type SubmitEvent } from "react";
 import type { NuevoUsuario, TipoUsuario } from "../types/Usuario";
 
 interface Props {
-  onGuardar: (usuario: NuevoUsuario) => void;
+  onGuardar: (usuario: NuevoUsuario) => Promise<void>;
 }
 
 export default function UsuarioFormulario({ onGuardar }: Props) {
@@ -10,10 +10,12 @@ export default function UsuarioFormulario({ onGuardar }: Props) {
   const [apellido, setApellido] = useState("");
   const [edad, setEdad] = useState("");
   const [tipo, setTipo] = useState<TipoUsuario>("regular");
+  const [guardando, setGuardando] = useState(false);
+  const [errorGuardado, setErrorGuardado] = useState("");
 
-  function manejarEnvio(evento: SubmitEvent<HTMLFormElement>) {
+  async function manejarEnvio(evento: SubmitEvent<HTMLFormElement>) {
     evento.preventDefault();
-
+    if (guardando) return;
     const edadNumero = Number(edad);
 
     if (
@@ -26,17 +28,29 @@ export default function UsuarioFormulario({ onGuardar }: Props) {
       return;
     }
 
-    onGuardar({
-      nombre: nombre.trim(),
-      apellido: apellido.trim(),
-      edad: edadNumero,
-      tipo,
-    });
+    setGuardando(true);
+    setErrorGuardado("");
 
-    setNombre("");
-    setApellido("");
-    setEdad("");
-    setTipo("regular");
+    try {
+      onGuardar({
+        nombre: nombre.trim(),
+        apellido: apellido.trim(),
+        edad: edadNumero,
+        tipo,
+      });
+
+      setNombre("");
+      setApellido("");
+      setEdad("");
+      setTipo("regular");
+    } catch (error) {
+      console.error("Error al guardar usuario:", error);
+      setErrorGuardado(
+        "No se pudo registrar el usuario. Inténtalo nuevamente.",
+      );
+    } finally {
+      setGuardando(false);
+    }
   }
 
   return (
@@ -102,10 +116,18 @@ export default function UsuarioFormulario({ onGuardar }: Props) {
           </select>
         </div>
       </div>
-
       <div className="d-flex justify-content-end mt-4">
-        <button className="btn btn-primary px-4" type="submit">
-          Guardar usuario
+        {errorGuardado && (
+          <div className="alert alert-danger mt-3" role="alert">
+            {errorGuardado}
+          </div>
+        )}
+        <button
+          type="submit"
+          className="btn btn-primary px-4"
+          disabled={guardando}
+        >
+          {guardando ? "Guardando..." : "Guardar usuario"}
         </button>
       </div>
     </form>
